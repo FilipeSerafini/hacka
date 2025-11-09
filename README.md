@@ -1,16 +1,26 @@
-# 🚢 Ship Route Generator & Visualizer
+# 🚢 AI-Enhanced Ship Route Generator
 
-An AI-powered maritime route generation and visualization service that calculates optimal shipping routes between any two points on Earth.
+An advanced maritime route generation and visualization service with **AI-powered safety analysis** that calculates optimal shipping routes while automatically checking for hazardous zones.
 
-## 🌟 Features
+## 🌟 Key Features
 
-- **🤖 AI-Powered Routing**: Uses intelligent pathfinding algorithms through the [searoute-py](https://github.com/genthalili/searoute-py) library
-- **🗺️ Interactive Map Visualization**: Beautiful, interactive maps powered by Folium
+### Core Routing
+- **🤖 AI-Powered Routing**: Intelligent pathfinding using [searoute-py](https://github.com/genthalili/searoute-py)
 - **🌍 Global Coverage**: Calculate routes between any maritime ports worldwide
-- **📊 Detailed Analytics**: Get distance, duration, and port information for each route
-- **💾 GeoJSON Export**: Export routes in standard GeoJSON format
-- **⚓ Real Port Data**: Automatically identifies nearest ports and provides detailed information
+- **⚓ Real Port Data**: Automatically identifies nearest ports with detailed information
 - **🎯 Preset Locations**: Quick access to major maritime ports around the world
+
+### 🛡️ AI Safety Analysis (NEW!)
+- **Real-time Hazard Detection**: Automatically checks routes against 12+ hazardous zones
+- **Intelligent Risk Assessment**: Analyzes piracy zones, storms, high winds, ice, and more
+- **Automatic Route Optimization**: Suggests safer alternatives when hazards are detected
+- **Visual Safety Indicators**: Color-coded routes and hazard zone overlays on map
+- **Detailed Safety Reports**: Comprehensive analysis with recommendations
+
+### Visualization & Export
+- **🗺️ Interactive Map**: Beautiful maps with hazard zones and safety waypoints
+- **📊 Detailed Analytics**: Distance, duration, safety status, and port information
+- **💾 GeoJSON Export**: Export routes in standard GeoJSON format
 
 ## 🚀 Getting Started
 
@@ -63,6 +73,8 @@ See `example_usage.py` for more detailed examples.
 
 ## 📖 How to Use
 
+### Basic Route Generation
+
 1. **Select Origin Port**: 
    - Choose from preset locations or enter custom coordinates
    - Preset options include major ports like Le Havre, Singapore, Shanghai, etc.
@@ -73,17 +85,47 @@ See `example_usage.py` for more detailed examples.
 
 3. **Generate Route**:
    - Click the "Generate Route" button
-   - Wait for the AI to calculate the optimal maritime route
+   - The AI automatically:
+     - Calculates the optimal maritime route
+     - Checks for hazardous zones
+     - Attempts to find safer alternatives if needed
 
-4. **View Results**:
-   - Interactive map shows the complete route
+4. **Review Safety Analysis**:
+   - Check the safety status indicator at the top
+   - Review the detailed safety report in the right panel
+   - Examine hazard zones on the interactive map
+
+5. **View Results**:
+   - Interactive map shows:
+     - Your route (color-coded by safety level)
+     - Hazard zones as colored polygons
+     - Safety waypoints (if route was optimized)
    - Route information panel displays:
+     - Safety analysis report
      - Total distance (in nautical miles)
      - Estimated duration
      - Origin and destination port details
    
-5. **Export Data**:
+6. **Export Data**:
    - Download the route as a GeoJSON file for use in other applications
+
+### Understanding Safety Indicators
+
+**Route Colors:**
+- 🟢 **Green**: Safe route, no hazards detected
+- 🔵 **Blue**: Low risk, minor advisory
+- 🟠 **Orange**: Medium risk, caution advised
+- 🔴 **Red**: High risk, alternative route strongly recommended
+
+**Hazard Zones:**
+- Yellow regions: Low severity hazards
+- Orange regions: Medium severity hazards
+- Red regions: High severity hazards
+
+**Status Messages:**
+- ✅ Safe route generated successfully
+- 🔄 Route rerouted to avoid hazards
+- ⚠️ Route contains risk hazards
 
 ## 🎯 Example Routes
 
@@ -94,12 +136,27 @@ The application comes with several preset locations for quick testing:
 - **Rotterdam, Netherlands** ↔️ **Shanghai, China**: Major trade route
 - **Santos, Brazil** ↔️ **Hamburg, Germany**: Atlantic crossing
 
+## 🛡️ AI Safety Features
+
+The system monitors **12 active hazard zones** worldwide:
+
+### Hazard Types
+- **🏴‍☠️ Piracy Zones**: Gulf of Aden, Malacca Strait, Gulf of Guinea, Mozambique Channel
+- **🌪️ Storm Zones**: South China Sea, North Atlantic, Bay of Bengal, Caribbean Sea
+- **🌊 High Winds**: Red Sea
+- **🧊 Ice Formations**: Bering Sea
+- **🌋 Volcanic Activity**: Sunda Strait
+- **🚢 High Traffic**: East China Sea
+
+For detailed information about the AI safety features, see [AI_SAFETY_FEATURES.md](AI_SAFETY_FEATURES.md).
+
 ## 🛠️ Technology Stack
 
 - **[Streamlit](https://streamlit.io/)**: Web application framework
 - **[searoute-py](https://github.com/genthalili/searoute-py)**: Maritime route calculation
 - **[Folium](https://python-visualization.github.io/folium/)**: Interactive map visualization
-- **[streamlit-folium](https://github.com/randyzwitch/streamlit-folium)**: Streamlit-Follit integration
+- **[streamlit-folium](https://github.com/randyzwitch/streamlit-folium)**: Streamlit-Folium integration
+- **[Shapely](https://shapely.readthedocs.io/)**: Geometric operations for hazard detection
 
 ## 📦 Dependencies
 
@@ -110,6 +167,7 @@ folium==0.15.1
 streamlit-folium==0.15.1
 pandas==2.1.4
 numpy==1.26.2
+shapely==2.0.2
 ```
 
 ## 🗺️ GeoJSON Output Format
