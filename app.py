@@ -306,26 +306,28 @@ if st.session_state.route_data:
                 st.info("🔄 This route includes a safety waypoint to avoid hazardous areas.")
             
             # Origin port info
-            if "port_origin" in props:
+            if "port_origin" in props and props["port_origin"] is not None:
                 origin_port = props["port_origin"]
                 st.markdown("### 🔵 Origin Port")
-                if "name" in origin_port:
-                    st.write(f"**Name:** {origin_port['name']}")
-                if "cty" in origin_port:
-                    st.write(f"**Country:** {origin_port['cty']}")
-                if "port" in origin_port:
-                    st.write(f"**Code:** {origin_port['port']}")
+                if isinstance(origin_port, dict):
+                    if "name" in origin_port:
+                        st.write(f"**Name:** {origin_port['name']}")
+                    if "cty" in origin_port:
+                        st.write(f"**Country:** {origin_port['cty']}")
+                    if "port" in origin_port:
+                        st.write(f"**Code:** {origin_port['port']}")
             
             # Destination port info
-            if "port_dest" in props:
+            if "port_dest" in props and props["port_dest"] is not None:
                 dest_port = props["port_dest"]
                 st.markdown("### 🔴 Destination Port")
-                if "name" in dest_port:
-                    st.write(f"**Name:** {dest_port['name']}")
-                if "cty" in dest_port:
-                    st.write(f"**Country:** {dest_port['cty']}")
-                if "port" in dest_port:
-                    st.write(f"**Code:** {dest_port['port']}")
+                if isinstance(dest_port, dict):
+                    if "name" in dest_port:
+                        st.write(f"**Name:** {dest_port['name']}")
+                    if "cty" in dest_port:
+                        st.write(f"**Country:** {dest_port['cty']}")
+                    if "port" in dest_port:
+                        st.write(f"**Code:** {dest_port['port']}")
         
         # Export button
         st.markdown("---")

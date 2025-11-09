@@ -185,44 +185,95 @@ class RouteSafetyAnalyzer:
         Returns:
             [lon, lat] of suggested waypoint, or None if cannot determine
         """
-        # Create polygon from hazard region
-        hazard_coords = hazard_zone["region"]["coordinates"][0]
-        hazard_polygon = Polygon(hazard_coords)
-        
-        # Get centroid of hazard zone
-        centroid = hazard_polygon.centroid
-        
-        # Calculate perpendicular offset point
-        # This is a simplified approach - in production, use more sophisticated routing
-        origin_point = Point(origin)
-        dest_point = Point(destination)
-        
-        # Find point on polygon boundary farthest from the direct line
-        direct_line = LineString([origin, destination])
-        
-        # Get boundary points and find the one with max distance from direct line
-        boundary_coords = list(hazard_polygon.exterior.coords)
-        max_dist = 0
-        best_waypoint = None
-        
-        for coord in boundary_coords:
-            point = Point(coord)
-            dist = direct_line.distance(point)
-            if dist > max_dist:
-                max_dist = dist
-                best_waypoint = coord
-        
-        if best_waypoint:
-            # Offset the waypoint further away from the hazard
-            offset_factor = 1.5
+        try:
+            # Create polygon from hazard region
+            hazard_coords = hazard_zone["region"]["coordinates"][0]
+            hazard_polygon = Polygon(hazard_coords)
+            
+            # Get centroid and bounds of hazard zone
+            centroid = hazard_polygon.centroid
+            bounds = hazard_polygon.bounds  # (minx, miny, maxx, maxy)
+            
+            # Create direct line between origin and destination
+            direct_line = LineString([origin, destination])
+            
+            # Calculate the perpendicular direction to route around the hazard
+            origin_lon, origin_lat = origin
+            dest_lon, dest_lat = destination
             centroid_lon, centroid_lat = centroid.x, centroid.y
-            waypoint_lon, waypoint_lat = best_waypoint
             
-            # Move waypoint away from centroid
-            offset_lon = waypoint_lon + (waypoint_lon - centroid_lon) * offset_factor
-            offset_lat = waypoint_lat + (waypoint_lat - centroid_lat) * offset_factor
+            # Calculate vector from route midpoint to hazard center
+            mid_lon = (origin_lon + dest_lon) / 2
+            mid_lat = (origin_lat + dest_lat) / 2
             
-            return [offset_lon, offset_lat]
+            # Determine which side to route around based on geography
+            # Calculate perpendicular offsets
+            route_vector_lon = dest_lon - origin_lon
+            route_vector_lat = dest_lat - origin_lat
+            
+            # Two perpendicular directions (left and right of route)
+            perp_options = [
+                # Option 1: Perpendicular to the right
+                [
+                    centroid_lon - route_vector_lat * 2,
+                    centroid_lat + route_vector_lon * 2
+                ],
+                # Option 2: Perpendicular to the left  
+                [
+                    centroid_lon + route_vector_lat * 2,
+                    centroid_lat - route_vector_lon * 2
+                ],
+                # Option 3: Route above (north)
+                [centroid_lon, bounds[3] + abs(bounds[3] - bounds[1]) * 0.5],
+                # Option 4: Route below (south)
+                [centroid_lon, bounds[1] - abs(bounds[3] - bounds[1]) * 0.5]
+            ]
+            
+            # Find the waypoint that is outside the hazard and closest to the direct route
+            best_waypoint = None
+            min_detour = float('inf')
+            
+            for waypoint_candidate in perp_options:
+                wp_point = Point(waypoint_candidate)
+                
+                # Check if waypoint is outside hazard zone
+                if not hazard_polygon.contains(wp_point) and not hazard_polygon.intersects(wp_point):
+                    # Calculate total distance via waypoint
+                    dist_to_wp = Point(origin).distance(wp_point)
+                    dist_from_wp = wp_point.distance(Point(destination))
+                    total_detour = dist_to_wp + dist_from_wp
+                    
+                    if total_detour < min_detour:
+                        min_detour = total_detour
+                        best_waypoint = waypoint_candidate
+            
+            # If we found a good waypoint, add extra buffer distance
+            if best_waypoint:
+                # Add 20% buffer away from hazard
+                buffer_lon = best_waypoint[0] + (best_waypoint[0] - centroid_lon) * 0.2
+                buffer_lat = best_waypoint[1] + (best_waypoint[1] - centroid_lat) * 0.2
+                return [buffer_lon, buffer_lat]
+            
+            # Fallback: find furthest boundary point and extend it
+            boundary_coords = list(hazard_polygon.exterior.coords)
+            max_dist = 0
+            fallback_waypoint = None
+            
+            for coord in boundary_coords:
+                point = Point(coord)
+                dist = direct_line.distance(point)
+                if dist > max_dist:
+                    max_dist = dist
+                    fallback_waypoint = coord
+            
+            if fallback_waypoint:
+                # Extend waypoint significantly away from hazard
+                offset_lon = fallback_waypoint[0] + (fallback_waypoint[0] - centroid_lon) * 2.0
+                offset_lat = fallback_waypoint[1] + (fallback_waypoint[1] - centroid_lat) * 2.0
+                return [offset_lon, offset_lat]
+            
+        except Exception as e:
+            print(f"Error calculating waypoint: {e}")
         
         return None
     
@@ -251,62 +302,90 @@ class RouteSafetyAnalyzer:
             # Try to find alternative routes with waypoints
             best_route = route
             best_analysis = safety_analysis
+            severity_order = {"high": 3, "medium": 2, "low": 1}
+            
+            print(f"Initial route safety: {safety_analysis['severity']} - {len(safety_analysis['hazards_detected'])} hazards")
             
             for attempt in range(max_attempts):
                 # Get the most severe hazard
-                hazards = safety_analysis["hazards_detected"]
+                hazards = best_analysis["hazards_detected"]
                 if not hazards:
                     break
                 
+                print(f"\nAttempt {attempt + 1}: Trying to avoid hazards...")
+                
                 # Sort by severity and percentage affected
-                severity_order = {"high": 3, "medium": 2, "low": 1}
                 hazards_sorted = sorted(
                     hazards, 
                     key=lambda h: (severity_order.get(h["severity"], 0), h["percentage_affected"]),
                     reverse=True
                 )
                 
-                most_severe_hazard = hazards_sorted[0]
-                
-                # Find the full hazard zone data
-                hazard_zone = None
-                for hz in self.hazard_zones:
-                    if hz["id"] == most_severe_hazard["id"]:
-                        hazard_zone = hz
-                        break
-                
-                if not hazard_zone:
-                    break
-                
-                # Suggest waypoint to avoid this hazard
-                waypoint = self.suggest_waypoint_to_avoid_hazard(origin, destination, hazard_zone)
-                
-                if waypoint:
-                    try:
-                        # Generate route with waypoint
-                        leg1 = sr.searoute(origin=origin, destination=waypoint, units="naut")
-                        leg2 = sr.searoute(origin=waypoint, destination=destination, units="naut")
-                        
-                        # Combine routes
-                        combined_route = self._combine_routes(leg1, leg2)
-                        new_analysis = self.check_route_safety(combined_route)
-                        
-                        # If this route is better, use it
-                        if (new_analysis["is_safe"] or 
-                            severity_order.get(new_analysis["severity"], 0) < 
-                            severity_order.get(best_analysis["severity"], 0)):
-                            best_route = combined_route
-                            best_analysis = new_analysis
-                            best_analysis["rerouted"] = True
-                            best_analysis["waypoint_used"] = waypoint
+                # Try to avoid the most severe hazards (try top 3)
+                for hazard_to_avoid in hazards_sorted[:min(3, len(hazards_sorted))]:
+                    # Find the full hazard zone data
+                    hazard_zone = None
+                    for hz in self.hazard_zones:
+                        if hz["id"] == hazard_to_avoid["id"]:
+                            hazard_zone = hz
+                            break
+                    
+                    if not hazard_zone:
+                        continue
+                    
+                    print(f"  Trying to avoid: {hazard_zone['name']}")
+                    
+                    # Suggest waypoint to avoid this hazard
+                    waypoint = self.suggest_waypoint_to_avoid_hazard(origin, destination, hazard_zone)
+                    
+                    if waypoint:
+                        print(f"  Generated waypoint: {waypoint[0]:.2f}, {waypoint[1]:.2f}")
+                        try:
+                            # Generate route with waypoint
+                            leg1 = sr.searoute(origin=origin, destination=waypoint, units="naut")
+                            leg2 = sr.searoute(origin=waypoint, destination=destination, units="naut")
                             
-                            if new_analysis["is_safe"]:
+                            # Combine routes
+                            combined_route = self._combine_routes(leg1, leg2, waypoint)
+                            new_analysis = self.check_route_safety(combined_route)
+                            
+                            print(f"  New route safety: {new_analysis['severity']} - {len(new_analysis['hazards_detected'])} hazards")
+                            
+                            # If this route is better, use it
+                            new_severity_score = severity_order.get(new_analysis["severity"], 0)
+                            best_severity_score = severity_order.get(best_analysis["severity"], 0)
+                            
+                            is_improvement = (
+                                new_analysis["is_safe"] or
+                                new_severity_score < best_severity_score or
+                                (new_severity_score == best_severity_score and 
+                                 len(new_analysis["hazards_detected"]) < len(best_analysis["hazards_detected"]))
+                            )
+                            
+                            if is_improvement:
+                                print(f"  ✓ Route improved!")
+                                best_route = combined_route
+                                best_analysis = new_analysis
+                                best_analysis["rerouted"] = True
+                                best_analysis["waypoint_used"] = waypoint
+                                
+                                if new_analysis["is_safe"]:
+                                    print("  ✓ Safe route found!")
+                                    return best_route, best_analysis
+                                
+                                # Continue trying to improve further
                                 break
-                        
-                        safety_analysis = new_analysis
-                    except Exception as e:
-                        print(f"Error generating alternative route: {e}")
-                        break
+                            else:
+                                print(f"  ✗ No improvement")
+                            
+                        except Exception as e:
+                            print(f"  ✗ Error generating route with waypoint: {e}")
+                            continue
+            
+            if best_analysis.get("rerouted"):
+                print(f"\n✓ Successfully rerouted. Final safety: {best_analysis['severity']}")
+            else:
+                print(f"\n✗ Could not find safer alternative. Original safety: {best_analysis['severity']}")
             
             return best_route, best_analysis
             
@@ -320,7 +399,7 @@ class RouteSafetyAnalyzer:
                 "total_hazards": 0
             }
     
-    def _combine_routes(self, route1: Dict, route2: Dict) -> Dict:
+    def _combine_routes(self, route1: Dict, route2: Dict, waypoint: List[float] = None) -> Dict:
         """
         Combine two route segments into a single route.
         
@@ -358,7 +437,8 @@ class RouteSafetyAnalyzer:
             "units": route1.get("properties", {}).get("units", "naut"),
             "port_origin": route1.get("properties", {}).get("port_origin"),
             "port_dest": route2.get("properties", {}).get("port_dest"),
-            "waypoint_route": True
+            "waypoint_route": True,
+            "waypoint": waypoint
         }
         
         return combined
