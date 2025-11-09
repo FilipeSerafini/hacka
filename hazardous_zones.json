@@ -1,0 +1,275 @@
+{
+  "hazard_zones": [
+    {
+      "id": "hz_001",
+      "name": "Gulf of Aden - High Piracy Risk",
+      "type": "piracy",
+      "severity": "high",
+      "description": "Active piracy zone near Somalia coast. Frequent attacks on commercial vessels.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [43.0, 10.0],
+            [54.0, 10.0],
+            [54.0, 14.0],
+            [43.0, 14.0],
+            [43.0, 10.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 47,
+      "last_updated": "2025-11-01"
+    },
+    {
+      "id": "hz_002",
+      "name": "Malacca Strait - Piracy Alert",
+      "type": "piracy",
+      "severity": "medium",
+      "description": "Narrow strait with occasional piracy incidents and heavy traffic congestion.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [99.0, 1.0],
+            [104.5, 1.0],
+            [104.5, 5.5],
+            [99.0, 5.5],
+            [99.0, 1.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 23,
+      "last_updated": "2025-10-28"
+    },
+    {
+      "id": "hz_003",
+      "name": "South China Sea - Typhoon Season",
+      "type": "storm",
+      "severity": "high",
+      "description": "Active typhoon zone during monsoon season. High waves and strong winds expected.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [110.0, 10.0],
+            [120.0, 10.0],
+            [120.0, 20.0],
+            [110.0, 20.0],
+            [110.0, 10.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 15,
+      "last_updated": "2025-11-05"
+    },
+    {
+      "id": "hz_004",
+      "name": "Gulf of Guinea - Security Risk",
+      "type": "piracy",
+      "severity": "high",
+      "description": "Increasing piracy and kidnapping incidents. Armed robbery against ships.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-5.0, -2.0],
+            [10.0, -2.0],
+            [10.0, 5.0],
+            [-5.0, 5.0],
+            [-5.0, -2.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 34,
+      "last_updated": "2025-11-03"
+    },
+    {
+      "id": "hz_005",
+      "name": "North Atlantic - Winter Storms",
+      "type": "storm",
+      "severity": "medium",
+      "description": "Severe winter storms with high waves (15-20m) and strong winds. Reduced visibility.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-45.0, 45.0],
+            [-20.0, 45.0],
+            [-20.0, 55.0],
+            [-45.0, 55.0],
+            [-45.0, 45.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 12,
+      "last_updated": "2025-11-08"
+    },
+    {
+      "id": "hz_006",
+      "name": "Red Sea - High Winds & Geopolitical Tensions",
+      "type": "high_winds",
+      "severity": "medium",
+      "description": "Strong northerly winds and regional instability. Navigation challenges.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [35.0, 12.0],
+            [43.0, 12.0],
+            [43.0, 20.0],
+            [35.0, 20.0],
+            [35.0, 12.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 8,
+      "last_updated": "2025-11-06"
+    },
+    {
+      "id": "hz_007",
+      "name": "Bay of Bengal - Cyclone Season",
+      "type": "storm",
+      "severity": "high",
+      "description": "Tropical cyclones with extreme weather. Very high waves and monsoon conditions.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [80.0, 8.0],
+            [93.0, 8.0],
+            [93.0, 22.0],
+            [80.0, 22.0],
+            [80.0, 8.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 19,
+      "last_updated": "2025-11-04"
+    },
+    {
+      "id": "hz_008",
+      "name": "Sunda Strait - Volcanic Activity",
+      "type": "volcanic_activity",
+      "severity": "medium",
+      "description": "Active volcanic zone. Risk of ash clouds and tsunami from underwater seismic activity.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [105.0, -6.5],
+            [106.0, -6.5],
+            [106.0, -5.5],
+            [105.0, -5.5],
+            [105.0, -6.5]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 3,
+      "last_updated": "2025-10-30"
+    },
+    {
+      "id": "hz_009",
+      "name": "Caribbean Sea - Hurricane Zone",
+      "type": "storm",
+      "severity": "high",
+      "description": "Active hurricane season. Category 4-5 hurricanes possible. Extreme weather conditions.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-85.0, 10.0],
+            [-60.0, 10.0],
+            [-60.0, 20.0],
+            [-85.0, 20.0],
+            [-85.0, 10.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 11,
+      "last_updated": "2025-11-07"
+    },
+    {
+      "id": "hz_010",
+      "name": "Mozambique Channel - Piracy & Cyclones",
+      "type": "piracy",
+      "severity": "medium",
+      "description": "Sporadic piracy incidents and tropical cyclones. Combined navigation risks.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [38.0, -26.0],
+            [42.0, -26.0],
+            [42.0, -12.0],
+            [38.0, -12.0],
+            [38.0, -26.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 7,
+      "last_updated": "2025-10-25"
+    },
+    {
+      "id": "hz_011",
+      "name": "East China Sea - High Traffic & Territorial Disputes",
+      "type": "high_traffic",
+      "severity": "low",
+      "description": "Extremely high vessel traffic and ongoing territorial disputes. Collision risk.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [120.0, 25.0],
+            [128.0, 25.0],
+            [128.0, 33.0],
+            [120.0, 33.0],
+            [120.0, 25.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 5,
+      "last_updated": "2025-11-02"
+    },
+    {
+      "id": "hz_012",
+      "name": "Bering Sea - Ice & Severe Weather",
+      "type": "ice",
+      "severity": "high",
+      "description": "Sea ice formation and extreme cold. Severe storms and limited rescue options.",
+      "region": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-180.0, 55.0],
+            [-165.0, 55.0],
+            [-165.0, 65.0],
+            [-180.0, 65.0],
+            [-180.0, 55.0]
+          ]
+        ]
+      },
+      "active": true,
+      "reported_incidents": 6,
+      "last_updated": "2025-11-09"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "last_updated": "2025-11-09",
+    "total_zones": 12,
+    "source": "Maritime Safety Intelligence System",
+    "update_frequency": "daily"
+  }
+}
